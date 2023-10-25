@@ -1,738 +1,119 @@
-
-
-invite  = None
-
-invite2  = None
-
-s = False
-
-gameplayed= 0
-
-x =1
-
-listt =[]
-
-serversocket =None
-
-C =None
-
-istarted = False
-
-start =None
-
-stop =b'\x03\x15\x00\x00\x00\x10\t\x1e\xb7N\xef9\xb7WN5\x96\x02\xb0g\x0c\xa8'
-
-runscript = 0
-
-import re 
-
-isconn = False
-
-increase =False
-
-back=False
-
-ca=False
-
-socktion =None
-
-def str2hex(s:str):
-
-    
-
-    return ''.join([hex(ord(c))[2:].zfill(2) for c in s])    
-
-def get_status(id):
-
-    from time import sleep
-
-    import requests
-
-    
-
-    
-
-    r= requests.get('https://ff.garena.com/api/antihack/check_banned?lang=en&uid={}'.format(id)) 
-
-    a = "0"
-
-    if  a in r.text :
-
-        #acount ban
-
-        return ("متصل !" )
-
-        
-
-    else : 
-
-        #acount clear
-
-        return ('تم تعليقه .')
-
-        
-
-        
-
-def get_info(user_id):
-
-    import requests
-
-    id = user_id
-
-    cookies = {
-
-        '_ga': 'GA1.1.2123120599.1674510784',
-
-        '_fbp': 'fb.1.1674510785537.363500115',
-
-        '_ga_7JZFJ14B0B': 'GS1.1.1674510784.1.1.1674510789.0.0.0',
-
-        'source': 'mb',
-
-        'region': 'MA',
-
-        'language': 'ar',
-
-        '_ga_TVZ1LG7BEB': 'GS1.1.1674930050.3.1.1674930171.0.0.0',
-
-        'datadome': '6h5F5cx_GpbuNtAkftMpDjsbLcL3op_5W5Z-npxeT_qcEe_7pvil2EuJ6l~JlYDxEALeyvKTz3~LyC1opQgdP~7~UDJ0jYcP5p20IQlT3aBEIKDYLH~cqdfXnnR6FAL0',
-
-        'session_key': 'efwfzwesi9ui8drux4pmqix4cosane0y',
-
-    }
-
-    headers = {
-
-        'Accept-Language': 'en-US,en;q=0.9',
-
-        'Connection': 'keep-alive',
-
-        # 'Cookie': '_ga=GA1.1.2123120599.1674510784; _fbp=fb.1.1674510785537.363500115; _ga_7JZFJ14B0B=GS1.1.1674510784.1.1.1674510789.0.0.0; source=mb; region=MA; language=ar; _ga_TVZ1LG7BEB=GS1.1.1674930050.3.1.1674930171.0.0.0; datadome=6h5F5cx_GpbuNtAkftMpDjsbLcL3op_5W5Z-npxeT_qcEe_7pvil2EuJ6l~JlYDxEALeyvKTz3~LyC1opQgdP~7~UDJ0jYcP5p20IQlT3aBEIKDYLH~cqdfXnnR6FAL0; session_key=efwfzwesi9ui8drux4pmqix4cosane0y',
-
-        'Origin': 'https://shop2game.com',
-
-        'Referer': 'https://shop2game.com/app/100067/idlogin',
-
-        'Sec-Fetch-Dest': 'empty',
-
-        'Sec-Fetch-Mode': 'cors',
-
-        'Sec-Fetch-Site': 'same-origin',
-
-        'User-Agent': 'Mozilla/5.0 (Linux; Android 11; Redmi Note 8) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Mobile Safari/537.36',
-
-        'accept': 'application/json',
-
-        'content-type': 'application/json',
-
-        'sec-ch-ua': '"Chromium";v="107", "Not=A?Brand";v="24"',
-
-        'sec-ch-ua-mobile': '?1',
-
-        'sec-ch-ua-platform': '"Android"',
-
-        'x-datadome-clientid': '20ybNpB7Icy69F~RH~hbsvm6XFZADUC-2_--r5gBq49C8uqabutQ8DV_IZp0cw2y5Erk-KbiNZa-rTk1PKC900mf3lpvEP~95Pmut_FlHnIXqxqC4znsakWbqSX3gGlg',
-
-    }
-
-    json_data = {
-
-        'app_id': 100067,
-
-        'login_id': f'{id}',
-
-        'app_server_id': 0,
-
-    }
-
-    res = requests.post('https://shop2game.com/api/auth/player_id_login', cookies=cookies, headers=headers, json=json_data)
-
-    response = res.json()
-
-    try : 
-
-        name=response['nickname']
-
-    except:
-
-        name=response
-
-    return name 
-
-def convert_to_bytes(input_string):
-
-    # replace non-hexadecimal character with empty string
-
-    cleaned_string = input_string[:231] + input_string[232:]
-
-    # convert cleaned string to bytes
-
-    output_bytes = bytes.fromhex(cleaned_string)
-
-    return output_bytes
-
-def gen_packet(data : str):
-
-    PacketLenght = data[7:10]
-
-    PacketHedar1= data[10:32]
-
-    PayLoad= data[32:34]
-
-    NameLenghtAndName=re.findall('1b12(.*)1a02' , data)[0]
-
-    Name = NameLenghtAndName[2:]
-
-    NameLenght = NameLenghtAndName[:2]
-
-    NewName="5b46463030305d4d6f64652042792040594b5a205445414d"
-
-    NewNameLenght = len(NewName)//2
-
-    NewPyloadLenght=int(int('0x'+PayLoad , 16) - int("0x"+NameLenght , 16))+int(NewNameLenght)
-
-    NewPacketLenght = (int('0x'+PacketLenght , 16)-int('0x'+PayLoad , 16)) + NewPyloadLenght
-
-    packet = data.replace(Name , str((NewName)))
-
-    packet = packet.replace(str('1b12'+NameLenght) , '1b12'+str(hex(NewNameLenght)[2:]))
-
-    packet = packet.replace(PayLoad , str(hex(NewPyloadLenght)[2:]))
-
-    packet = packet.replace(PacketLenght[0] , str(hex(NewPacketLenght)[2:]) )
-
-    
-
-    return packet
-
-def gen_msgv2(packet  , replay):
-
-    
-
-    replay  = replay.encode('utf-8')
-
-    replay = replay.hex()
-
-    
-
-    hedar = packet[0:8]
-
-    packetLength = packet[8:10] #
-
-    paketBody = packet[10:32]
-
-    pyloadbodyLength = packet[32:34]#
-
-    pyloadbody2= packet[34:60]
-
-    
-
-    pyloadlength = packet[60:62]#
-
-    pyloadtext  = re.findall(r'{}(.*?)28'.format(pyloadlength) , packet[50:])[0]
-
-    pyloadTile = packet[int(int(len(pyloadtext))+62):]
-
-    
-
-    
-
-    NewTextLength = (hex((int(f'0x{pyloadlength}', 16) - int(len(pyloadtext)//2) ) + int(len(replay)//2))[2:])
-
-    if len(NewTextLength) ==1:
-
-        NewTextLength = "0"+str(NewTextLength)
-
-        
-
-    NewpaketLength = hex(((int(f'0x{packetLength}', 16) - int((len(pyloadtext))//2) ) ) + int(len(replay)//2) )[2:]
-
-    NewPyloadLength = hex(((int(f'0x{pyloadbodyLength}', 16) - int(len(pyloadtext)//2))  )+ int(len(replay)//2) )[2:]
-
-    finallyPacket = hedar + NewpaketLength +paketBody + NewPyloadLength +pyloadbody2+NewTextLength+ replay + pyloadTile
-
-    
-
-    return str(finallyPacket)
-
-def getinfobyid(packet , user_id , client):
-
-    
-
-    load = gen_msgv2(packet , """[FFC800][b][c]معلومات الاعب !""")
-
-    load2 =gen_msgv2_clan(packet , """[FFC800][b][c]معلومات الاعب ! """) 
-
-    for i in range(1):
-
-        time.sleep(1.5)
-
-        client.send(bytes.fromhex(load))
-
-        client.send(bytes.fromhex(load2))
-
-    
-
-    name = get_info(user_id)
-
-    stat = get_status(user_id)
-
-    if "id" not in name:
-
-        pyload_3 = gen_msgv2_clan(packet , f"""[00FFFF][b][c]أيدي الاعب : [FFA500]""")
-
-        client.send(bytes.fromhex(pyload_3))
-
-        pyload_3 = gen_msgv2(packet , f"""[00FFFF][b][c]أيدي الاعب : [FFA500]""")
-
-        client.send(bytes.fromhex(pyload_3))
-
-        pyload_3 = gen_msgv2_clan(packet , f"""[00FF00][b][c]{user_id}""")
-
-        client.send(bytes.fromhex(pyload_3))
-
-        pyload_3 = gen_msgv2(packet , f"""[00FF00][b][c]{user_id}""")
-
-        client.send(bytes.fromhex(pyload_3))
-
-        
-
-        #
-
-        pyload_3 = gen_msgv2_clan(packet , f"""[00FFFF][b][c]إسم لاعب : [FFA500]""")
-
-        client.send(bytes.fromhex(pyload_3))
-
-        pyload_3 = gen_msgv2(packet , f"""[00FFFF][b][c]إسم لاعب : [FFA500]""")
-
-        client.send(bytes.fromhex(pyload_3))
-
-        pyload_3 = gen_msgv2_clan(packet , f"""[00FF00][b][c]{name}""")
-
-        client.send(bytes.fromhex(pyload_3))
-
-        pyload_3 = gen_msgv2(packet , f"""[00FF00][b][c]{name}""")
-
-        client.send(bytes.fromhex(pyload_3))
-
-        
-
-        ##
-
-        
-
-        
-
-        pyload_3 = gen_msgv2_clan(packet , f"""[00FFFF][b][c]حالة الاعب : """)
-
-        client.send(bytes.fromhex(pyload_3))
-
-        pyload_3 = gen_msgv2(packet , f"""[00FFFF][b][c]حالة الاعب : """)
-
-        client.send(bytes.fromhex(pyload_3))
-
-        client.send(bytes.fromhex(pyload_3))
-
-        
-
-        
-
-        
-
-        #
-
-        time.sleep(4.0)
-
-        pyload_3 = gen_msgv2_clan(packet , f"""[00FF00][b][c]{stat}""")
-
-        client.send(bytes.fromhex(pyload_3))
-
-        pyload_3 = gen_msgv2(packet , f"""[00FF00][b][c]{stat}""")
-
-        client.send(bytes.fromhex(pyload_3))
-
-        client.send(bytes.fromhex(pyload_3))
-
-    else:
-
-        pyload_1 = str(gen_msgv2_clan(packet , f"""[00FFFF][b][c]إسم لاعب : """))
-
-        client.send(bytes.fromhex(pyload_1))
-
-        pyload_1 = str(gen_msgv2(packet , f"""[00FFFF][b][c]إسم لاعب : """))
-
-        client.send(bytes.fromhex(pyload_1))
-
-        pyload_3 = gen_msgv2_clan(packet , f"""[00FFFF][b][c]إسم لاعب : """)
-
-        client.send(bytes.fromhex(pyload_3))
-
-        pyload_3 = gen_msgv2(packet , f"""[00FFFF][b][c]إسم لاعب : """)
-
-        client.send(bytes.fromhex(pyload_3))
-
-        
-
-        #
-
-        pyload_1 = str(gen_msgv2_clan(packet , f"""[00FF00][b][c]{name}"""))
-
-        client.send(bytes.fromhex(pyload_1))
-
-        pyload_1 = str(gen_msgv2(packet , f"""[00FF00][b][c]{name}"""))
-
-        client.send(bytes.fromhex(pyload_1))
-
-        pyload_3 = gen_msgv2_clan(packet , f"""[00FF00][b][c]{name}""")
-
-        client.send(bytes.fromhex(pyload_3))
-
-        pyload_3 = gen_msgv2(packet , f"""[00FF00][b][c]{name}""")
-
-        client.send(bytes.fromhex(pyload_3))
-
-        
-
-def gen_msgv2_clan(packet  , replay):
-
-    
-
-    replay  = replay.encode('utf-8')
-
-    replay = replay.hex()
-
-    hedar = packet[0:8]
-
-    packetLength = packet[8:10] #
-
-    paketBody = packet[10:32]
-
-    pyloadbodyLength = packet[32:34]#
-
-    pyloadbody2= packet[34:64]
-
-    pyloadlength = packet[64:66]#
-
-    pyloadtext  = re.findall(r'{}(.*?)28'.format(pyloadlength) , packet[50:])[0]
-
-    pyloadTile = packet[int(int(len(pyloadtext))+66):]
-
-    
-
-    NewTextLength = (hex((int(f'0x{pyloadlength}', 16) - int(len(pyloadtext)//2) ) + int(len(replay)//2))[2:])
-
-    if len(NewTextLength) ==1:
-
-        NewTextLength = "0"+str(NewTextLength)
-
-    NewpaketLength = hex(((int(f'0x{packetLength}', 16) - int(len(pyloadtext)//2) ) - int(len(pyloadlength))) + int(len(replay)//2) + int(len(NewTextLength)))[2:]
-
-    NewPyloadLength = hex(((int(f'0x{pyloadbodyLength}', 16) - int(len(pyloadtext)//2)) -int(len(pyloadlength)) )+ int(len(replay)//2) + int(len(NewTextLength)))[2:]
-
-    
-
-    
-
-    finallyPacket = hedar + NewpaketLength +paketBody + NewPyloadLength +pyloadbody2+NewTextLength+ replay + pyloadTile
-
-    return finallyPacket
-
-invite= None
-
-spams = False
-
-spampacket= b''
-
-recordmode= False
-
-sendpackt=False
-
-global vares
-
-vares = 0
-
-spy = False
-
-inviteD=False
-
-inviteE=False
-
-op = None
-
-global statues
-
-statues= True
+import socket
+import threading
+import select
+import re
+import requests
+
+a="\033[1;30m"
+b="\033[1;31m"
+c="\033[1;32m"
+d="\033[1;34m"
+
+e="\033[1;34m"
+f="\033[1;35m"
+g="\033[1;36m"
+
+add_frind = False
+run = False
 
 SOCKS_VERSION = 5
 
-packet =b''
+spy_id = False
 
-spaming =True
+id_add = None
+import  os
+clin = None
+clear = False
+recorde = False
+spy_normall = None
+lvl = False
+group = None
+clin2 = None
+send_go = False
 
-full=False
+packt_lag = None
 
-import os
+inter_group = None
 
-import sys
+lag_id_check = False
 
-def spam(server,packet):
-
+def inter():
     while True:
-
-        time.sleep(0.015)
-
-        server.send(packet)
-
-        if   recordmode ==False:
-
-            break
-
-def destroy(remote,dataC):
-
-    
-
-    var= 0
-
-    for i in range(50):
-
+        global lag_id_check , inter_group
+        global send_go, packt_lag
+        global clear,recorde , spy_normall
+        vasd=input("SEND ID >")
+        global lvl,head,group ,clin ,clin2 ,id_add
         
+        if 'lag' in vasd and packt_lag != None:
+        	        	
+        	print("send lag_go")
+        	
+        	lag_id_check = True   
+        	 	
+        	threading.Thread(target=lag_id, args= (packt_lag,)).start()
+        	
+        elif "st" in vasd :
+        	lag_id_check = False
+        	
+        elif "s" in vasd :
+        	
+        	if inter_group != None :
+        		group.send(inter_group)
+          	        	
+    #    	lag_id(packt_lag)
+        	
+        #	threading.Thread(target=inter, args=()).start()
+        	
+        #	
+        	
+    #    elif 
+        	
+        elif "2" in vasd:
+        	
+        	yor_id = vasd
+        	
+        	print("send msg")
+        	
+        	send_go = True
+        	clin2.send(bytes.fromhex(f"120000013808efd2edba0c101220022aab0208{id_add}10efd2edba0c18022889e7aba8063803428c017b22636f6e74656e74223a22545f32365f415f504f5f4d45535f31222c22697352657175657374223a747275652c2269734163636570746564223a66616c73652c22726561736f6e223a302c2274696d65223a302c2267616d65537461727454696d65223a302c226d617463684d6f6465223a302c2267616d654d6f6465223a302c226d61704944223a307d4a2c0a15d981d8b1d8b5d9875fd8b3d8b9d98ad8afd9873a2910b6c58fae0318bea9d2ad0320d90128d9aff8b1035202656e6a520a4c68747470733a2f2f67726170682e66616365626f6f6b2e636f6d2f76392e302f3731363937353732323035333131382f706963747572653f77696474683d313630266865696768743d31363010011801"))
+        	
+         	
 
-        var= var+1
+def lag_id(packt):
+            global lag_id_check, group
+            
+            while lag_id_check == True :
+            	try:
+            		print("send - lag")
+            		group.send(packt)
+            	except :
+            		pass
+	     	
+            		
+            	
+            	
+            	
+            
+            
+            
+            
+            
+   
+        
+            
+head = None            
 
-       
-
-        time.sleep(0.010)
-
-        for i in range(10):
-
+start = None
             
 
-            remote.send(dataC)
-
-    time.sleep(0.5)
-
-def timesleep():
-
-    time.sleep(60)
-
-    #print(istarted)
-
-    if istarted == True:
-
-        serversocket.send(start)
-
-def enter_game_and_RM():
-
-    global listt
-
-    for data in listt:
-
-        
-
-        C.send(data)
-
-        listt.remove(data)
-
-    time.sleep(15)
-
-    print("start the game ....")
-
-    istarted =False
-
-    serversocket.send(start)
-
-    t = threading.Thread(target=timesleep, args=())
-
-    t.start()
-
-def break_the_matchmaking(server):
-
-    global is_start
-
-    global isrun
-
-    server.send(stop)
-
-    server.send(stop)
-
-    server.send(stop)
-
-    print('sending stop')
-
-    is_start =True
-
-    t = threading.Thread(target=enter_game_and_RM, args=())
-
-    t.start()
-
-import time
-
-import socket
-
-import threading
-
-import select
-
-SOCKS_VERSION= 5
-
-cod = False
-
-kay = None
-
-red_cod = None
-
-#if kay in writ_cod:
-
-#	cod = True
-
-	
-
-	
-
-#else:
-
-	
-
-#	cod = False
-
-	
-
-import requests
-
-import base64
-
-import ast
-
-#addrs = None
-
-#passw = None
-
-code = False
-
-import uuid
-
-active = False
-
-def checkpass(passw):
-
-    global active
-
- #   code = False
-
-    repo_url = "https://api.github.com/repos/Yahiard/txt"
-
-    file_path = "filt.txt"
-
-    headers = {"Authorization": "Bearer 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"}
-
-    response = requests.get(repo_url + "/contents/" + file_path, headers=headers)
-
-    file_content = response.json()["content"]
-
-    decoded_content = base64.b64decode(file_content).decode("utf-8")
-
-    content_dict = ast.literal_eval(decoded_content)
-
-    data = content_dict
-
-    adrss = ':'.join(['{:02x}'.format((uuid.getnode() >> elements) & 0xff) for elements in range(0, 48, 8)])
-
-    
-
-    if passw in data:
-
-        print(data[passw])
-
-        addes = data[passw][0]
-
-        if addes == adrss:
-
-            active = True
-
-            print('if__1')
-
-        if addes == 'not_use':
-
-            data[passw][0] = adrss  
-
-            active = True
-
-            print('if__2')
-
-        if passw == 'free_code':
-
-            active = True
-
-    else:
-
-        active = False
-
-    updated_content = str(content_dict)
-
-    encoded_content = base64.b64encode(updated_content.encode("utf-8")).decode("utf-8")
-
-    update_url = repo_url + "/contents/" + file_path
-
-    data = {
-
-        "message": "Updated file",
-
-        "content": encoded_content,
-
-        "sha": response.json()["sha"]
-
-    }
-
-    response = requests.put(update_url, headers=headers, json=data)
-
-    if response.status_code == 200:
-
-        print("File updated successfully.")
-
-    else:
-
-        print("Error updating file.")
-
-    print(active)
-
-    
-
-    return active
-
-		
-
-		
-
-		
-
-#actcode = None
-
-	
-
-# mac adrrs	
-
-                            
-
-    
-
 class Proxy:
-
+ 
     def __init__(self):
-
         self.username = "username"
-
         self.password = "username"
-
         self.packet = b''
-
         self.sendmode = 'client-0-'
-
-        self.spam_level=False
-
-        self.spam_foxy=False
-
-  #      self.active = False
 
     def handle_client(self, connection):
 
@@ -740,1002 +121,271 @@ class Proxy:
 
         methods = self.get_available_methods(nmethods, connection)
 
-        if 2   in set(methods):
+        if 2 not in set(methods):
 
-            if 2 in set(methods):
+            connection.close()
+            return
 
-                connection.sendall(bytes([SOCKS_VERSION, 2]))
+        connection.sendall(bytes([SOCKS_VERSION, 2]))
 
-            else:
-
-                connection.sendall(bytes([SOCKS_VERSION, 0]))
-
-        if not self.verify_credentials(connection,methods):
-
+        if not self.verify_credentials(connection):
             return
 
         version, cmd, _, address_type = connection.recv(4)
+        
 
         if address_type == 1:
-
             address = socket.inet_ntoa(connection.recv(4))
-
+ 
         elif address_type == 3:
-
             domain_length = connection.recv(1)[0]
-
             address = connection.recv(domain_length)
-
             address = socket.gethostbyname(address)
-
             name= socket.gethostname()
 
         port = int.from_bytes(connection.recv(2), 'big', signed=False)
-
         port2 = port
-
         try:
-
-            remote = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
-            remote.connect((address, port))
-
-            #print(" connect to {} \n \n \n ".format(address))
-
-            bind_address = remote.getsockname()
+            if cmd == 1:
+                remote = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                remote.connect((address, port))
+                bind_address = remote.getsockname()
+            else:
+                connection.close()
 
             addr = int.from_bytes(socket.inet_aton(
-
                 bind_address[0]), 'big', signed=False)
-
             port = bind_address[1]
 
             reply = b''.join([
-
                 SOCKS_VERSION.to_bytes(1, 'big'),
-
                 int(0).to_bytes(1, 'big'),
-
                 int(0).to_bytes(1, 'big'),
-
                 int(1).to_bytes(1, 'big'),
-
                 addr.to_bytes(4, 'big'),
-
                 port.to_bytes(2, 'big')
 
             ])
-
         except Exception as e:
 
             reply = self.generate_failed_reply(address_type, 5)
 
         connection.sendall(reply)
 
-        self.botdev(connection, remote,port2)
+        if reply[1] == 0 and cmd == 1:
+            self.botdev(connection, remote, address, port2)
+        connection.close()
 
     def generate_failed_reply(self, address_type, error_number):
-
         return b''.join([
-
             SOCKS_VERSION.to_bytes(1, 'big'),
-
             error_number.to_bytes(1, 'big'),
-
             int(0).to_bytes(1, 'big'),
-
             address_type.to_bytes(1, 'big'),
-
             int(0).to_bytes(4, 'big'),
-
             int(0).to_bytes(4, 'big')
-
         ])
 
-    def verify_credentials(self, connection,methods):
+    def verify_credentials(self, connection):
+        version = ord(connection.recv(1))
 
-        if 2 in methods:
 
-            version = ord(connection.recv(1))
+        username_len = ord(connection.recv(1))
+        username = connection.recv(username_len).decode('utf-8')
 
-            username_len = ord(connection.recv(1))
+        password_len = ord(connection.recv(1))
+        password = connection.recv(password_len).decode('utf-8')
 
-            username = connection.recv(username_len).decode('utf-8')
-
-            password_len = ord(connection.recv(1))
-
-            password = connection.recv(password_len).decode('utf-8')
-
-            #   print(username,password)
-
-            if username == self.username and password == self.password:
-
-                response = bytes([version, 0])
-
-                connection.sendall(response)
-
-                return True
+        if username == self.username and password == self.password:
 
             response = bytes([version, 0])
-
             connection.sendall(response)
-
+ 
             return True
+            
 
-        else:
-
-            version =1
-
-            response = bytes([version, 0])
-
-            connection.sendall(response)
-
-            return True
+        response = bytes([version, 0xFF])
+        connection.sendall(response)
+        connection.close()
+        return False
 
     def get_available_methods(self, nmethods, connection):
-
         methods = []
-
         for i in range(nmethods):
-
             methods.append(ord(connection.recv(1)))
-
         return methods
 
-    def runs(self, host, port):
+    def run(self, host, port):
+        var = 0 
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.bind((host, port))
+        s.listen()
+        print(" [ free fire proxy  ] [your ip {}]:[ the port {}]".format(host, port))
+        threading.Thread(target=inter, args=()).start()
 
-        try:
+        while True:
+            conn, addr = s.accept()
+            running = False
+            t = threading.Thread(target=self.handle_client, args=(conn,))
+            t.start()
+    def botdev(self, client, remote, address, port):
+        global group
+        activation = True
+       
+        global clin , clin2 ,send_go,inter_group
+        while True:
 
-            var =  0
-
-            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
-            #s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-
-            s.bind((host, port))
-
-            s.listen()
-
-            while True:
-
-                var =var+1
-
-                conn, addr = s.accept()
-
-                running = False
-
-                t = threading.Thread(target=self.handle_client, args=(conn,))
-
-                t.start()
-
-        except Exception as e:
-
-            print("Created")
-
+            r, w, e = select.select([client, remote], [], [])
             
-
-    #connect
-
-    def botdev(self, client, remote, port):
-
-        
-
-            while True:
-
-                r, w, e = select.select([client, remote], [], [])
-
-                od= b''
-
-                global start
-
-                if client in r or remote in r:
-
-                    global invite
-
-                    global invite2
-
-                    global s
-
-                    global x
-
-                    global ca
-
-                    global hidr
-
-                    global cliee
-
-                    global serversocket
-
-                    global isconn ,inviteD ,back
-
-                    global cod,kay
-
-                    global active
-
-                    global code
-
-                  
-
-                   
-
+            
+               	
+               	    		
+                    		
+            if client in r or remote in r:
+                if client in r:
+                    dataC = client.recv(99999999)
+                    global packt_lag
+                    
+                    if "0515" in dataC.hex()[0:4] and len(dataC.hex()) < 400 and send_go == True :
+                    	packt_lag = dataC
+                    	
+                    	print("\n\n ", dataC.hex(),"\n\n")
+                    	
+                    if send_go == True and "0515" in dataC.hex()[0:4] and len(dataC.hex()) > 1100 :
+                    	inter_group = dataC
+                    	
+                    	send_go = False
+                    	
+                    if send_go == True and "0515" in dataC.hex()[0:4] :
+                    	print("\n\n len data :" , len(dataC.hex()))
+                    	print("\n\n" ,dataC.hex())
+                    	
+                    	
+                    if port == 39801 :
+                    	clin2 = client
+                    if port == 39699:
+                        
+                        group = remote                        
+                        clin = client
+                        
+                      
+                        
+                    if remote.send(dataC) <= 0:
+                        break
+                if remote in r:
                     global actcode
 
+                    dataS = remote.recv(999999)
                     
-
-	
-
-	
-
-	
-
-	
-
-	
-
-	
-
-                    
-
-                    if client in r:
-
-                        dataC = client.recv(999999)
-
-                        if port ==39800 or port ==39698:
-
-                            isconn=True
-
-                        if  "39698" in str(remote) :
-
-                            self.op = remote
-
-                
-
-                        if '0515' in dataC.hex()[0:4] and len(dataC.hex()) >= 141  :                  
-
-                            self.data_join=dataC
-
-                            
-
-                        
-
-                        if '0515' in dataC.hex()[0:4] and len(dataC.hex()) <50  :  
-
-                            print(remote)                
-
-                            self.data_back=dataC
-
-                        if  port ==39698:
-
-                            #print(" catch a socket sir ")
-
-                            #  print(f"{dataC}\n")
-
-                            invite= remote
-
-                        global hide
-
-                        hide =False
-
-                        global recordmode
-
-                        #laaaaaag
-
-                        if '1215' in dataC.hex()[0:4] and recordmode ==True:
-
-                            global spampacket
-
-                            spampacket =dataC
-
-                            #recordmode=False
-
-                            global statues
-
-                            statues= True
-
-                            time.sleep(5)
-
-                            b = threading.Thread(target=spam, args=(remote,spampacket))
-
-                            b.start()
-
-                                    #invite_D
-
-                        if '0515' in dataC.hex()[0:4] and len(dataC.hex()) >=900 and inviteD==True and hide ==False :
-
-                            var = 0
-
-                            m = threading.Thread(target=destroy, args=(remote,dataC))
-
-                            m.start()
-
-                            global spams
-
-                            spams =True
-
-                        if '0515' in dataC.hex()[0:4] and len(dataC.hex()) >= 141:
-
-                            hide = True
-
-                            global benfit
-
-                            benfit = False
-
-                                    #lvl_UP
-
-                        if '0315' in dataC.hex()[0:4]:
-
-                            if len(dataC.hex()) >=300:
-
-                                start = dataC
-
-                                print(dataC)
-
-                            is_start =False
-
-                            serversocket =remote
-
-                            print("socket is defined suucesfuly !..")
-
-                            t = threading.Thread(target=timesleep, args=())
-
-                            t.start()
-
-                            #level_PRO++
-
-                        if "0315" in dataC.hex()[0:4] and len(dataC.hex())>820 and self.spam_level==True:
-
-                            self.start_game=dataC
-
-                            print("packet >>"+dataC.hex())
-
-                            threading.Thread(target=self.level_up ).start()
-
-                            #level_low
-
-                        if "0315" in dataC.hex()[0:4] and len(dataC.hex())>820 and self.spam_foxy==True:
-
-                            self.start_walid=dataC
-
-                            print("packet >>"+dataC.hex())
-
-                            threading.Thread(target=self.foxy_up ).start()
-
-         
-
-#mizaaaaat
-
-                        if remote.send(dataC) <= 0:
-
-                            break
-
-                    if remote in r:
-
-                        global opb
-
-                        global listt
-
-                        global C
-
-                        global istarted
-
-                        global gameplayed
-
-                        global packet
-
-                        global socktion
-
-                        global ca
-
-                        global increase ,back
-
-                        global actcode
-
-                        global active
-
-                        global code
-
-                        
-
-               #         cot = False
-
-                     
-
-                       
-
-                        dataS = remote.recv(999999)
-
-                        
-
-                        
-
-                        if '1809' in dataS.hex()[26:30] or "1802" in dataS.hex()[26:30] or "1808" in dataS.hex()[26:30]:
-
-                          #  ca=False
-
-                            print(dataC.hex()[0:4])
-
-                            print('  the team ')
-
-                            #hackg.send(hackw
-
-                        
-
-                        if '0300' in dataS.hex()[0:4] :
-
-                            #print('yes')
-
-                            C = client
-
-                            print(dataS)
-
-                            socketsender =client
-
-                            if b'Ranked Mode' in dataS:
-
-                                #print("w")
-
-                                client.send(dataS)
-
-                            else:
-
-                                if b'catbarq' in dataS:
-
-                                    vdsf=3
-
-                                else:
-
-                                    #
-
-                                    hackw= dataS
-
-                                    hackg= client
-
-                                    if len(dataS.hex()) <= 100:
-
-                                        e=2
-
-                                    #  print("anti detect !")
-
-                                    else:
-
-                                        if increase ==True:
-
-                                            print("Enter game packet founded")
-
-                                            #      start = dataC
-
-                                            #      print(dataC)
-
-                                            gameplayed =gameplayed+1
-
-                                            istarted = True
-
-                                            #      print(f"{dataS} \n")
-
-                                            listt.append(dataS)
-
-                                            #rint(listt)
-
-                                            t = threading.Thread(target=break_the_matchmaking, args=(serversocket,))
-
-                                            t.start()
-
-                                        else:
-
-                                            client.send(dataS)
-
-                        else:
-
-                            #  if '0000' !in dataS.hex()[:4] and '1200' !in dataS.hex()[:4] and '1700' !in dataS.hex()[:4]:
-
-                            #  print(dataS.hex(),"\n")
-
-                            if '050gy0' in dataS.hex()[:4] and b'\x05\x15\x00\x00\x00\x10Z\xca\xf5&T;\x0cA\x01\x16\xe0\x05\xb2\xea\xe4\x0b' in dataC:
-
-                                f=2
-
-                                #serversocket.send(b'\x05\x15\x00\x00\x00\x10\x9b@x\xd7\x15\x9e\x0f\xfaZ+\x88\xe5\xac\x18\x9fw')
-
-                            else:
-
-                            	
-
-                            	
-
-                            		
-
-               
-
-                                
-
-                                
-
-                                
-
-                                
-
-                                
-
-                                
-
-                                
-
-                            	
-
-                            	
-
-                            	
-
-                            	
-
-                            	
-
-                   #         	
-
-                               # 	
-
-             #/inv                   #spam_invite
-
-                                if '1200' in dataS.hex()[0:4] and '2f696e76' in dataS.hex()[0:900] and active == True : 
-
-                                    inviteD =True
-
-                                    
-
-                                if "1200" in dataS.hex() and b'code:' in dataS :
-
-                                   print('True')
-
-                                   kay = r'code:(.*?)\('
-
-                                   rescode = re.search(kay, str(dataS))
-
-                                   actcode = rescode.group(1)
-
-                                   print(actcode)
-
-                                   codr = str(actcode)
-
-                                   
-
-                                   checkpass(codr)
-
-                                   if active == True :
-
-                                   	                    	data = dataS.hex()
-
-                                   	                    	datat = data.replace('636f64653a', '4f4ec2a93a')
-
-                                   	                    	client.send(bytes.fromhex(datat))
-
-                                   	                    	
-
-                                   else:
-
-                                                     	datat = data.replace('636f64653a', '4f46463a')
-
-                                                     	client.send(bytes.fromhex(datat))
-
-                                   	                    	
-
-                                                     	
-
-                                  	                  	
-
+                    def packet_fixer(packet):
+                                                                           packet = packet.lower()
+                                                                           packet = packet.replace(" ","")
+                                                                           return packet
+                                                                           
+                                                                           
+
+                    try:
+                    	
+                    	global a,c,b
+                    	global run
+                    	global add_frind, spy_id
+                    	import random
+                    	global id_add, clear,recorde
+                    	b="\033[1;31m"
+                    	c="\033[1;32m"
+                    	global lvl
+                    	global start , spy_normall
+                    	global head
+                    	
+                 
+             	
+             	
+             	
+                    	if port == 39699 and "0f0000" in dataS.hex()[0:6] and len(dataS.hex())  == 52 and "0f15" in dataC.hex()[0:4] and len(dataC.hex()) == 44 :
+                    		id_add = dataS.hex()[-10:]
+                    		
+                    		print("\n\n\nid = ", id_add)
+                    		
+                    		clin.send(bytes.fromhex(f"060000006808caadc2e31c100620022a5c08{id_add}1a1b5b3030464630305d4e4554e385a4424f542b2b5b3030464646465d32024d45404db00113b801a528d801d4d8d0ad03e00101b801e807f00101f8019a018002fd98a8dd03900201d0020cd8022ee002b2e9f7b103"))
+                    	
+                    	elif port == 39699 and "0f0000" in dataS.hex()[0:6] and len(dataS.hex())  < 130 and dataS.hex()[-4:] == "1005" and "0f15" in dataC.hex()[0:4] and len(dataC.hex()) == 44 :
+                    		id_add = dataS.hex()[40:50]
+                    		
+                    		print("\n\n\nid = ", id_add)
+                    		
+                    		clin.send(bytes.fromhex(f"060000006808caadc2e31c100620022a5c08{id_add}1a1b5b3030464630305d4e4554e385a4424f542b2b5b3030464646465d32024d45404db00113b801a528d801d4d8d0ad03e00101b801e807f00101f8019a018002fd98a8dd03900201d0020cd8022ee002b2e9f7b103"))
+                    		
+                    	
+                    	
+                    	
+                 #   	if "0515" in dataC.hex()[0:4] :
+                    #		print("\n\n ::::>",dataC.hex(),"\n\n")
+                    		
+                    	
+              #      	if port == 39699 and "0f1500000010" in dataC.hex() :
+                    #		print("\n\n ::::>",dataC.hex(),"\n\n")
+                    	
+                    	
+                    	if  '0500' in dataS.hex()[0:4] and '0515' in dataC.hex()[0:4] and len(dataC.hex()) >= 141and len(dataS.hex())>=100:
+                    		
+                    		spy_normall = dataS
+                    		head = client
+                    		print("new group 2 ")
+                    	
+                    		
+                    #		print(f"\n\nNew group\n\n{dataS}\n\n")
+                    		
+                    #		spy_normall = dataS
+                    		
+                    	
+                    	if lvl == True :
+                    		print("send LVL")
+                    		
+                    		stop_lvl =b'\x03\x15\x00\x00\x00\x10\t\x1e\xb7N\xef9\xb7WN5\x96\x02\xb0g\x0c\xa8'
+                    		group.send(stop_lvl)
+                    		group.send(start)
+                    		
+                    	#	lvl = False
+                    		
+                    	if '0315' in dataC.hex()[0:4] and port == 39699  and len(dataC.hex()) > 750 and lvl == True  :
+                    		
+                    		
+            		
+                    			start = dataC
+                    			print("data - LvL")
+                    			print(dataC.hex())
+                    			
+                    		
+                    		
+                    	
+                    	if clear == True:
+                    		os.system('clear')
+                    		clear = False
                     	
 
+
+                    	if port == 39699 and recorde == True:
+                    		
+                    		print(b,"DATA.S server : ",dataS.hex(),a,"\n\n")
+                    		print(c,"DATA.C clinte : ",dataC.hex(),a , "\n\n")                    	
                     	
-
-                             #      threading.Thread(target=checkpass , args=(actcode)).start()
-
-                                  # if avtive == True:
-
-                                 #  	active = True
-
-                                   	
-
-                                   	
-
-                           #        	kayt = True
-
-                                   	
-
-                                   	
-
-                       #            else:
-
-                       #            	active = False
-
-                                	
-
-                                   	        
-
-                        
-
-                                   	           	
-
+                    	if "1200" in dataS.hex() [0:4] and  b"/spy" in dataS:
+                    		
+                    		spy_id = True
+                    		
+                    		
+                    		
+         	
+                    	                  	                  	
                     	
-
                     	
-
-                    
-
-                                   
-
-                                   
-
-                                                                       
-
-                                    
-
-                                   
-
-                                   
-
-                                   
-
-                                   #/inf 
-
-                                    #invite_spam OFF
-
-                                if '1200' in dataS.hex()[0:4] and '2f696e66' in dataS.hex()[0:900] and active == True:
-
-                                    inviteD =False
-
-                      
-
-                                   
-
-                      #/v                                      
-
-                                if '1200' in dataS.hex()[0:4] and '2f76' in dataS.hex()[0:900] and active == True:
-
-                                    self.spam_level=True
-
-                                    
-
-                                   
-
-                                #lvl off
-
-                                if '1200' in dataS.hex()[0:4] and '2f7566' in dataS.hex()[0:900] and active == True:
-
-                                
-
-                                    
-
-                                    self.spam_level=False
-
-                                    
-
-                                    
-
-                                    
-
-                                    
-
-                                    
-
-                                    
-
-                                   
-
-                                   
-
-                          #/1         
-
-                                
-
-                                if '1200' in dataS.hex()[0:4] and b'/1p' in dataS[0:900]and active == True :
-
-                                  socktion.send(packet)
-
-                                    
-
-                                         
-
-                                    
-
-                                    
-
-#           /5
-
-                                if '1200' in dataS.hex()[0:4] and b'/5s' in dataS and active == True :
-
-                                  #	print(active)
-
-                              #      if active == True :
-
-                                    	
-
-                            #        else:
-
-                             #       	print(active)
-
-                                    
-
-                                    
-
-                                    
-
-                                    invite.send(bytes.fromhex("0503000001d01fb578313150905babcef51dd24ed75fd0a24b024bd1429646114bc22e604afd35a96fbc48710b2d9cfec4378287ec829e33a78608fd2dd138d4d24a19c00fbfdc9f15c77ff86d638b34de95bd886e3075e82d3f4a3888f9b6943463022c43fb90e229f0eaf8a788f6f766d891d99eb2c37b277144923212810b3c80d1c521790154ed270f5241adc136f2a22816e0bc84fcaf79386b27559de966aa788c184d35bbbfaa03a5f08746f8db0e73b2c91ec4515d61f689a0cad30a7cbd6c325151e879dabc43d506b3240abe41bc0d6b4416c18f68ef4af2d04c381be6bf586f6b25727c0c85c03a579137e4a6c602ef6d833dabdab3eba3a5266e5a4731fbfb1720b60f124cd8fd4fa26cc7a9fb6e0a218d8809f57b204d22fa97520aeb99007c7b71c709e53ecc688c9963e0786909152fa93f06dc93085468dae34e1609f33f7dee228fb058c6efd6846b50ac54db0aebb8f5bc2f6751f9e2886dbab41cbaf5a1d8cd88e6c13a2a2a56b613a2d32179dc3f781493a5027322ac0cb1a2d3c79d49fb12ed26230e1561df43d315a27be17b5debdba757803305252b5443f3d77cd319dde9c49a72c636d93d02bdd9597168f378aa6e41d0fd545abf8bc0883f3dac11ea27166683c7111a0f329bf6b6a5"))
-
-                                   
-
-                                    	
-
-                                if '1200' in dataS.hex()[0:4] and '2f73' in dataS.hex()[0:900] and spaming and active == True:
-
-                         #           client.send(bytes.fromhex(gen_msgv2(dataS.hex() ,"[00FF00][b][c]ON : Spam")))
-
-                           #         client.send(bytes.fromhex(str(gen_msgv2_clan(dataS.hex() ,"[00FF00][b][c]NO : Spam "))))
-
-                                    
-
-                                    
-
-                                    
-
-                                    recordmode = True
-
-     
-
-                                if '1200' in dataS.hex()[0:4] and '2f66' in dataS.hex()[0:900] and active == True :
-
-                                   
-
-                                    recordmode=False
-
-                         #           client.send(bytes.fromhex(gen_msgv2(dataS.hex() ,"[FF0000][b][c]OFF : Spam ")))
-
-                            #        client.send(bytes.fromhex(str(gen_msgv2_clan(dataS.hex() ,"[FF0000][b][c]OFF : Spam"))))
-
-                                    
-
-                                      
-
-                                    
-
-                                    statues= False
-
-                                    
-
-                                    
-
-                                    
-
-                                 #back_spam
-
-                                 
-
-                                if '1200' in dataS.hex()[0:4] and active == True:
-
-                                    if b"/4n" in dataS:
-
-                                        ca=True
-
-                                        threading.Thread(target=self.walid , args=(self.data_join,)).start()
-
-                                        client.send(bytes.fromhex(gen_msgv2(dataS.hex() ,"[00FF00][b][c]ON : 4")))
-
-                                        client.send(bytes.fromhex(str(gen_msgv2_clan(dataS.hex() ,"[00FF00][b][c]ON : 4"))))
-
-                                    statues= False
-
-                                    
-
-                                   
-
-                                    
-
-                                    #false
-
-                                if '1200' in dataS.hex()[0:4] and active == True:
-
-                                    if b"/4f" in dataS:
-
-                                        ca=False
-
-                                   #     client.send(bytes.fromhex(gen_msgv2(dataS.hex() ,"[FF0000][b][c]OFF : 4 ")))
-
-                                     #   client.send(bytes.fromhex(str(gen_msgv2_clan(dataS.hex() ,"[FF0000][b][c]OFF : 4"))))
-
-                                    statues= False
-
-                                    
-
-                                if  '0500' in dataS.hex()[0:4] and hide == True  :
-
-                                    socktion =client
-
-                                    if len(dataS.hex())<=30:
-
-                                        hide =True
-
-                                    if len(dataS.hex())>=31:
-
-                                        packet = dataS
-
-                                        hide = False
-
-                                if client.send(dataS) <= 0:
-
-                                    break
-
-                                    
-
-                                    
-
-        
-
-                                
-
-        
-
-        
-
-        
-
-    def foxy( self , data_join):
-
-        global back
-
-        print(data_join)
-
-        
-
-        while back==True:
-
-            try:
-
-                self.op.send(data_join)
-
-                time.sleep(9999.0)
-
-               
-
-                #                           0515000000104903408b9e91774e75b990038dddee49
-
-            except Exception as e:
-
-                
-
-                pass
-
-                
-
-    
-
-                
-
-               
-
-    def walid( self , data_join):
-
-        global ca
-
-        print(data_join)
-
-        
-
-        while ca==True:
-
-            try:
-
-                self.op.send(data_join)
-
-                time.sleep(1.0)
-
-                self.op.send(self.data_back)
-
-                #                           0515000000104903408b9e91774e75b990038dddee49
-
-            except Exception as e:
-
-                
-
-                pass
-
-                
-
-                #level UP
-
-    def level_up(self ):
-
-    
-
-        time.sleep(3)
-
-        print("start")
-
-        self.op.send(bytes.fromhex("031500000010091eb74eef39b7574e359602b0670ca8"))
-
-        self.op.send(bytes.fromhex("031500000010091eb74eef39b7574e359602b0670ca8"))
-
-        self.op.send(bytes.fromhex("031500000010091eb74eef39b7574e359602b0670ca8"))
-
-           
-
-        while self.spam_level==True :
-
-            
-
-            
-
-            
-
-            self.op.send(self.start_game)
-
-            
-
-            self.op.send(bytes.fromhex("031500000010091eb74eef39b7574e359602b0670ca8"))
-
-            self.op.send(bytes.fromhex("031500000010091eb74eef39b7574e359602b0670ca8"))
-
-            self.op.send(bytes.fromhex("031500000010091eb74eef39b7574e359602b0670ca8"))
-
-            
-
-            
-
-            time.sleep(3)
-
-            
-
-            #device_low
-
-            
-
-    def foxy_up(self ):
-
-    
-
-        time.sleep(5)
-
-        print("start")
-
-        self.op.send(bytes.fromhex("031500000010091eb74eef39b7574e359602b0670ca8"))
-
-        self.op.send(bytes.fromhex("031500000010091eb74eef39b7574e359602b0670ca8"))
-
-        self.op.send(bytes.fromhex("031500000010091eb74eef39b7574e359602b0670ca8"))
-
-            
-
-        while self.spam_foxy==True :
-
-            
-
-            
-
-            
-
-            self.op.send(self.start_walid)
-
-            
-
-            self.op.send(bytes.fromhex("031500000010091eb74eef39b7574e359602b0670ca8"))
-
-            self.op.send(bytes.fromhex("031500000010091eb74eef39b7574e359602b0670ca8"))
-
-            self.op.send(bytes.fromhex("031500000010091eb74eef39b7574e359602b0670ca8"))
-
-            
-
-            
-
-            time.sleep(14)
-
-def start_bot():
-
-    try :
-
-        Proxy().runs('0.0.0.0',7777)
-
-    except Exception as e:
-
-        sea=2
-
-start_bot()
-
-#starttopbot()
+                    except:
+                        print("rerror")
+
+                    if client.send(dataS) <= 0:
+                        break	 
+                                        
+def starttopbot():
+
+    Proxy().run('127.0.0.1',8000)
+		
