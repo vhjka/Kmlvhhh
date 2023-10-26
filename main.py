@@ -392,4 +392,5 @@ class Proxy:
 def starttopbot():
 
     Proxy().run('0.0.0.0',1080)
+starttopbot()
 
