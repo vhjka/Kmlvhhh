@@ -42,7 +42,7 @@ def inter():
         global lag_id_check , inter_group
         global send_go, packt_lag
         global clear,recorde , spy_normall
-        vasd=input("SEND ID >")
+        #vasd=input("SEND ID >")
         global lvl,head,group ,clin ,clin2 ,id_add
         
         if 'lag' in vasd and packt_lag != None:
