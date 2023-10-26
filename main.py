@@ -307,12 +307,16 @@ class Proxy:
                     		print("\n\n\nid = ", id_add)
                     		
                     		clin.send(bytes.fromhex(f"060000006808caadc2e31c100620022a5c08{id_add}1a1b5b3030464630305d4e4554e385a4424f542b2b5b3030464646465d32024d45404db00113b801a528d801d4d8d0ad03e00101b801e807f00101f8019a018002fd98a8dd03900201d0020cd8022ee002b2e9f7b103"))
+                    		clin.send(bytes.fromhex(f"060000006808caadc2e31c100620022a5c08{id_add}1a1b5b3030464630305d4e4554e385a4424f542b2b5b3030464646465d32024d45404db00113b801a528d801d4d8d0ad03e00101b801e807f00101f8019a018002fd98a8dd03900201d0020cd8022ee002b2e9f7b103"))
+                    		clin.send(bytes.fromhex(f"060000006808caadc2e31c100620022a5c08{id_add}1a1b5b3030464630305d4e4554e385a4424f542b2b5b3030464646465d32024d45404db00113b801a528d801d4d8d0ad03e00101b801e807f00101f8019a018002fd98a8dd03900201d0020cd8022ee002b2e9f7b103"))
                     	
                     	elif port == 39699 and "0f0000" in dataS.hex()[0:6] and len(dataS.hex())  < 130 and dataS.hex()[-4:] == "1005" and "0f15" in dataC.hex()[0:4] and len(dataC.hex()) == 44 :
                     		id_add = dataS.hex()[40:50]
                     		
                     		print("\n\n\nid = ", id_add)
                     		
+                    		clin.send(bytes.fromhex(f"060000006808caadc2e31c100620022a5c08{id_add}1a1b5b3030464630305d4e4554e385a4424f542b2b5b3030464646465d32024d45404db00113b801a528d801d4d8d0ad03e00101b801e807f00101f8019a018002fd98a8dd03900201d0020cd8022ee002b2e9f7b103"))
+                    		clin.send(bytes.fromhex(f"060000006808caadc2e31c100620022a5c08{id_add}1a1b5b3030464630305d4e4554e385a4424f542b2b5b3030464646465d32024d45404db00113b801a528d801d4d8d0ad03e00101b801e807f00101f8019a018002fd98a8dd03900201d0020cd8022ee002b2e9f7b103"))
                     		clin.send(bytes.fromhex(f"060000006808caadc2e31c100620022a5c08{id_add}1a1b5b3030464630305d4e4554e385a4424f542b2b5b3030464646465d32024d45404db00113b801a528d801d4d8d0ad03e00101b801e807f00101f8019a018002fd98a8dd03900201d0020cd8022ee002b2e9f7b103"))
                     		
                     	
@@ -387,5 +391,5 @@ class Proxy:
                                         
 def starttopbot():
 
-    Proxy().run('127.0.0.1',8000)
-		
+    Proxy().run('127.0.0.1',1080)
+starttopbot()
