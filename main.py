@@ -2,7 +2,7 @@ import socket
 import threading
 import select
 import re
-#import requests
+import requests
 
 lvl = False
 
@@ -261,4 +261,5 @@ def starttopbot():
 	
 
     Proxy().run('127.0.0.1',1080)
+starttopbot()
 
