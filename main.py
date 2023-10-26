@@ -4,108 +4,15 @@ import select
 import re
 #import requests
 
-a="\033[1;30m"
-b="\033[1;31m"
-c="\033[1;32m"
-d="\033[1;34m"
+lvl = False
 
-e="\033[1;34m"
-f="\033[1;35m"
-g="\033[1;36m"
+like = False
 
-add_frind = False
-run = False
+lvlnew = None
+
 
 SOCKS_VERSION = 5
 
-spy_id = False
-
-id_add = None
-import  os
-clin = None
-clear = False
-recorde = False
-spy_normall = None
-lvl = False
-group = None
-clin2 = None
-send_go = False
-
-packt_lag = None
-
-inter_group = None
-
-lag_id_check = False
-
-def inter():
-    while True:
-        global lag_id_check , inter_group
-        global send_go, packt_lag
-        global clear,recorde , spy_normall
-        #vasd=input("SEND ID >")
-        global lvl,head,group ,clin ,clin2 ,id_add
-        
-        if 'lag' in vasd and packt_lag != None:
-        	        	
-        	print("send lag_go")
-        	
-        	lag_id_check = True   
-        	 	
-        	threading.Thread(target=lag_id, args= (packt_lag,)).start()
-        	
-        elif "st" in vasd :
-        	lag_id_check = False
-        	
-        elif "s" in vasd :
-        	
-        	if inter_group != None :
-        		group.send(inter_group)
-          	        	
-    #    	lag_id(packt_lag)
-        	
-        #	threading.Thread(target=inter, args=()).start()
-        	
-        #	
-        	
-    #    elif 
-        	
-        elif "2" in vasd:
-        	
-        	yor_id = vasd
-        	
-        	print("send msg")
-        	
-        	send_go = True
-        	clin2.send(bytes.fromhex(f"120000013808efd2edba0c101220022aab0208{id_add}10efd2edba0c18022889e7aba8063803428c017b22636f6e74656e74223a22545f32365f415f504f5f4d45535f31222c22697352657175657374223a747275652c2269734163636570746564223a66616c73652c22726561736f6e223a302c2274696d65223a302c2267616d65537461727454696d65223a302c226d617463684d6f6465223a302c2267616d654d6f6465223a302c226d61704944223a307d4a2c0a15d981d8b1d8b5d9875fd8b3d8b9d98ad8afd9873a2910b6c58fae0318bea9d2ad0320d90128d9aff8b1035202656e6a520a4c68747470733a2f2f67726170682e66616365626f6f6b2e636f6d2f76392e302f3731363937353732323035333131382f706963747572653f77696474683d313630266865696768743d31363010011801"))
-        	
-         	
-
-def lag_id(packt):
-            global lag_id_check, group
-            
-            while lag_id_check == True :
-            	try:
-            		print("send - lag")
-            		group.send(packt)
-            	except :
-            		pass
-	     	
-            		
-            	
-            	
-            	
-            
-            
-            
-            
-            
-   
-        
-            
-head = None            
-
-start = None
-            
 
 class Proxy:
  
@@ -221,7 +128,6 @@ class Proxy:
         s.bind((host, port))
         s.listen()
         print(" [ free fire proxy  ] [your ip {}]:[ the port {}]".format(host, port))
-        threading.Thread(target=inter, args=()).start()
 
         while True:
             conn, addr = s.accept()
@@ -231,166 +137,128 @@ class Proxy:
     def botdev(self, client, remote, address, port):
         global group
         activation = True
-       
-        global clin , clin2 ,send_go,inter_group
+        group = None
         while True:
 
             r, w, e = select.select([client, remote], [], [])
-            
-            
-               	
-               	    		
-                    		
             if client in r or remote in r:
                 if client in r:
-                    dataC = client.recv(99999999)
-                    global packt_lag
+                    dataC = client.recv(999999)
                     
-                    if "0515" in dataC.hex()[0:4] and len(dataC.hex()) < 400 and send_go == True :
-                    	packt_lag = dataC
-                    	
-                    	print("\n\n ", dataC.hex(),"\n\n")
-                    	
-                    if send_go == True and "0515" in dataC.hex()[0:4] and len(dataC.hex()) > 1100 :
-                    	inter_group = dataC
-                    	
-                    	send_go = False
-                    	
-                    if send_go == True and "0515" in dataC.hex()[0:4] :
-                    	print("\n\n len data :" , len(dataC.hex()))
-                    	print("\n\n" ,dataC.hex())
-                    	
-                    	
-                    if port == 39801 :
-                    	clin2 = client
                     if port == 39699:
                         
-                        group = remote                        
-                        clin = client
                         
-                      
-                        
+                        group = remote
                     if remote.send(dataC) <= 0:
                         break
                 if remote in r:
                     global actcode
+                    
 
                     dataS = remote.recv(999999)
                     
-                    def packet_fixer(packet):
-                                                                           packet = packet.lower()
-                                                                           packet = packet.replace(" ","")
-                                                                           return packet
-                                                                           
-                                                                           
+                    
+                                    
 
                     try:
-                    	
-                    	global a,c,b
-                    	global run
-                    	global add_frind, spy_id
-                    	import random
-                    	global id_add, clear,recorde
-                    	b="\033[1;31m"
-                    	c="\033[1;32m"
-                    	global lvl
-                    	global start , spy_normall
-                    	global head
-                    	
-                 
-             	
-             	
-             	
-                    	if port == 39699 and "0f0000" in dataS.hex()[0:6] and len(dataS.hex())  == 52 and "0f15" in dataC.hex()[0:4] and len(dataC.hex()) == 44 :
-                    		id_add = dataS.hex()[-10:]
-                    		
-                    		print("\n\n\nid = ", id_add)
-                    		
-                    		clin.send(bytes.fromhex(f"060000006808caadc2e31c100620022a5c08{id_add}1a1b5b3030464630305d4e4554e385a4424f542b2b5b3030464646465d32024d45404db00113b801a528d801d4d8d0ad03e00101b801e807f00101f8019a018002fd98a8dd03900201d0020cd8022ee002b2e9f7b103"))
-                    		clin.send(bytes.fromhex(f"060000006808caadc2e31c100620022a5c08{id_add}1a1b5b3030464630305d4e4554e385a4424f542b2b5b3030464646465d32024d45404db00113b801a528d801d4d8d0ad03e00101b801e807f00101f8019a018002fd98a8dd03900201d0020cd8022ee002b2e9f7b103"))
-                    		clin.send(bytes.fromhex(f"060000006808caadc2e31c100620022a5c08{id_add}1a1b5b3030464630305d4e4554e385a4424f542b2b5b3030464646465d32024d45404db00113b801a528d801d4d8d0ad03e00101b801e807f00101f8019a018002fd98a8dd03900201d0020cd8022ee002b2e9f7b103"))
-                    	
-                    	elif port == 39699 and "0f0000" in dataS.hex()[0:6] and len(dataS.hex())  < 130 and dataS.hex()[-4:] == "1005" and "0f15" in dataC.hex()[0:4] and len(dataC.hex()) == 44 :
-                    		id_add = dataS.hex()[40:50]
-                    		
-                    		print("\n\n\nid = ", id_add)
-                    		
-                    		clin.send(bytes.fromhex(f"060000006808caadc2e31c100620022a5c08{id_add}1a1b5b3030464630305d4e4554e385a4424f542b2b5b3030464646465d32024d45404db00113b801a528d801d4d8d0ad03e00101b801e807f00101f8019a018002fd98a8dd03900201d0020cd8022ee002b2e9f7b103"))
-                    		clin.send(bytes.fromhex(f"060000006808caadc2e31c100620022a5c08{id_add}1a1b5b3030464630305d4e4554e385a4424f542b2b5b3030464646465d32024d45404db00113b801a528d801d4d8d0ad03e00101b801e807f00101f8019a018002fd98a8dd03900201d0020cd8022ee002b2e9f7b103"))
-                    		clin.send(bytes.fromhex(f"060000006808caadc2e31c100620022a5c08{id_add}1a1b5b3030464630305d4e4554e385a4424f542b2b5b3030464646465d32024d45404db00113b801a528d801d4d8d0ad03e00101b801e807f00101f8019a018002fd98a8dd03900201d0020cd8022ee002b2e9f7b103"))
-                    		
-                    	
-                    	
-                    	
-                 #   	if "0515" in dataC.hex()[0:4] :
-                    #		print("\n\n ::::>",dataC.hex(),"\n\n")
-                    		
-                    	
-              #      	if port == 39699 and "0f1500000010" in dataC.hex() :
-                    #		print("\n\n ::::>",dataC.hex(),"\n\n")
-                    	
-                    	
-                    	if  '0500' in dataS.hex()[0:4] and '0515' in dataC.hex()[0:4] and len(dataC.hex()) >= 141and len(dataS.hex())>=100:
-                    		
-                    		spy_normall = dataS
-                    		head = client
-                    		print("new group 2 ")
-                    	
-                    		
-                    #		print(f"\n\nNew group\n\n{dataS}\n\n")
-                    		
-                    #		spy_normall = dataS
-                    		
-                    	
-                    	if lvl == True :
-                    		print("send LVL")
-                    		
-                    		stop_lvl =b'\x03\x15\x00\x00\x00\x10\t\x1e\xb7N\xef9\xb7WN5\x96\x02\xb0g\x0c\xa8'
-                    		group.send(stop_lvl)
-                    		group.send(start)
-                    		
-                    	#	lvl = False
-                    		
-                    	if '0315' in dataC.hex()[0:4] and port == 39699  and len(dataC.hex()) > 750 and lvl == True  :
-                    		
-                    		
-            		
-                    			start = dataC
-                    			print("data - LvL")
-                    			print(dataC.hex())
-                    			
-                    		
-                    		
-                    	
-                    	if clear == True:
-                    		os.system('clear')
-                    		clear = False
-                    	
+                        
+                        
+                        
+                        global lvl
+                        global lvlnew
+                        global like
+                        import time
+                        import threading
+                        
+                        dataS_hex = dataS.hex()  # 
+                       
+                        if like == True :
+                        	
+                       # 	threading.Thread(target=top_fire).start()
+                        #	like = False
+
+                        #	time.sleep(2)                        	                        	
+                        	                     #   	like
+                        	group.send(bytes.fromhex("0315000000107876b41e9de83607618490c15cd33c27"))
+                        	
+                        	
+                        
+                        #"0000273727303150000737373737"
+                        
+                      #  lvl = False
+                        
+                   #     
+                      
+                       
+                        
+                        
+                        	
+                        	
+                        	
+                        	
+                        	  
+                        
+                                    
+                        
+                        
+                        if  lvl == True and "0315" in dataC.hex()[0:4]:
+                        	 print(dataC.hex())
+                        	 print(dataC)
+                        	 lvlnew = dataC
+                        #	 run_lvl = True
+                        
+               #         def runl():
+                        	 
+                       # 	 global 
+                        	 
+                        	 
+                       # 	 while lvlnew !=	None:
+                        	 	
+                        	 	
+                        	 
+                        	 
+                        	
+                        
+                       
+                        if "1200" in dataS.hex() [0:4] and  b"/start" in dataS:
 
 
-                    	if port == 39699 and recorde == True:
-                    		
-                    		print(b,"DATA.S server : ",dataS.hex(),a,"\n\n")
-                    		print(c,"DATA.C clinte : ",dataC.hex(),a , "\n\n")                    	
-                    	
-                    	if "1200" in dataS.hex() [0:4] and  b"/spy" in dataS:
-                    		
-                    		spy_id = True
-                    		
-                    		
-                    		
-         	
-                    	                  	                  	
-                    	
-                    	
+                        	print("DOneeeee")
+                        	
+                        	response = "051500000010553557f996c386cfd1d2548c60c2bdaa"
+                        	group.send(bytes.fromhex(response))
+                        	
+                        	
+           #             
+                        if '1200' in dataS.hex()[0:4] and b'make' in dataS :
+                            clin.send(bytes.fromhex("051500000010553557f996c386cfd1d2548c60c2bdaa"))
+                                      
+#	                   
+#                            
                     except:
-                        print("rerror")
+                        pass
+
 
                     if client.send(dataS) <= 0:
-                        break	 
-                                        
+                        break
+
+                     
+def top_fire():
+	  for e in range(10):
+	  	group.send(bytes.fromhex("120000007108af94c7ec1c101220022a6508af94c7ec1c10af94c7ec1c220d5be323d3930343039303032325d28a7a58fa7064a380a22efbcb3efbcb0e28194efbca5efbcaefbcafefbcae5fefbca4efbcafefbcaeefbca510df8b90ae0318e7efd2ad03201328c1b7f8b1035202656e6a0410011801"))
+             
+	  
+	 	
+	 	
+	 
+	 
+	 
+	 
+	                                                         
+	                                                         
 def starttopbot():
+	
+	
 
-    Proxy().run('0.0.0.0',1080)
+    Proxy().run('127.0.0.1',1080)
 starttopbot()
-
