@@ -1,5 +1,3 @@
-
-starttopbot()import socket
 import threading
 import select
 import re
