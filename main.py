@@ -2,7 +2,7 @@ import socket
 import threading
 import select
 import re
-import requests
+#import requests
 
 a="\033[1;30m"
 b="\033[1;31m"
